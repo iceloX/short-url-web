@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-   
+   <h1>WAY's 短链服务</h1>
   </div>
 </template>
 
