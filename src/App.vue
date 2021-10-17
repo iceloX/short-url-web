@@ -1,19 +1,9 @@
 <template>
   <div id="app">
-    <Main/>
+    <Main></Main>
+    <router-view/>
   </div>
 </template>
-
-<script>
-import Main from './components/Main.vue'
-
-export default {
-  name: 'App',
-  components: {
-    Main
-  }
-}
-</script>
 
 <style>
 #app {
@@ -22,6 +12,18 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+#nav {
+  padding: 30px;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
 }
 </style>
