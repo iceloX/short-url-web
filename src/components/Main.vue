@@ -3,7 +3,7 @@
     <h1>WAY's 短链服务</h1>
     <el-form
       :model="urlForm"
-      :rules="rule"
+      :rules="rules"
       ref="urlForm"
       label-width="100px"
       class="url-input"
@@ -11,16 +11,22 @@
       <el-form-item prop="url">
         <el-input v-model="urlForm.url"></el-input>
       </el-form-item>
-      <el-form-item prop="url">
-        <el-button type="primary" @click.prevent="submit()">立即生成</el-button>
+
+      <el-form-item>
+        <el-button type="primary" @click.prevent="submitForm()"
+          >立即生成</el-button
+        >
+        <el-button @click="resetForm('urlForm')">重置</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
 import mainconst from "../constants/main.constants";
+import axios from "axios";
+
 export default {
   name: "Main",
   data() {
@@ -28,39 +34,78 @@ export default {
     let urlReg = mainconst.URL_REGX;
     var validateUrl = (rule, value, callback) => {
       if (!urlReg.test(value)) {
-        callback(new Error("请输入正确的网址"));
+        callback(new Error("请输入正确的网址!"));
       }
+      callback();
     };
     return {
       urlForm: {
         url: "",
       },
-      rule: {
+      rules: {
         url: [
-          { required: true, message: "请输入正确的网址", trigger: "blur" },
+          { required: true, message: "请输入正确的网址!", trigger: "blur" },
           { validator: validateUrl, trigger: "blur" },
         ],
       },
     };
   },
   methods: {
-    submit() {
-      var url = this.urlForm.url;
-      var currentTime = new Date().getTime();
-      axios({
-        method: "post",
-        data: {
-          origin: url,
-          currentTime: currentTime,
-        },
-        url: "http://localhost:18880/url",
-      }).then(function(resp) {
-        console.log(resp.data);
+    submitForm() {
+      this.$refs["urlForm"].validate((valid) => {
+        if (valid) {
+          var url = this.urlForm.url;
+          var currentTime = new Date().getTime();
+          axios
+            .post(mainconst.SERVICE_URL + "/url", {
+              origin: url,
+              currentTime: currentTime,
+            })
+            .then((resp) => {
+              if (resp.data.code == mainconst.SUCCESS_CODE) {
+                console.log(resp.data);
+                this.$msgbox.alert(
+                  mainconst.ROOT_URL + resp.data.data.suffix,
+                  "生成成功",
+                  {
+                    confirmButtonText: "确定",
+                    callback: (action) => {
+                      this.$message({
+                        type: "info",
+                        message: `action: ${action}`,
+                      });
+                    },
+                  }
+                );
+              } else {
+                this.$notify.error({
+                  title: "生成失败",
+                  dangerouslyUseHTMLString: true,
+                  message:"<a href='https://github.com/iceloX/short-url-service/issues'>立即反馈</a>",
+                  duration: 0,
+                });
+              }
+            })
+            .catch((error)=> {
+              this.$notify.error({
+                title: "生成失败",
+                dangerouslyUseHTMLString: true,
+                message: error+"</br>"+"<a href='https://github.com/iceloX/short-url-service/issues'>立即反馈</a>",
+                duration: 0,
+              });
+            });
+        } else {
+          this.$notify.error({
+            title: "生成失败",
+            message: "请求失败！",
+            duration: 0,
+          });
+          return false;
+        }
       });
     },
-    reset() {
-      // 设置为空
-      this.website = "";
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
     },
   },
 };
