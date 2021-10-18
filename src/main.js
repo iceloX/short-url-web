@@ -24,7 +24,7 @@ router.beforeEach((to, from, next) => {
   var regex = /^\/[A-Za-z0-9]+$/;
   if (regex.test(suffix)) {
     console.log(suffix);
-    axios.get(mainconst.SERVICE_URL + suffix).then((res) => {
+    axios.get("/api"+suffix).then((res) => {
       console.log(res);
       if (res.data.code == mainconst.SUCCESS_CODE) {
         location.href = res.data.data.origin;

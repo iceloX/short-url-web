@@ -57,7 +57,7 @@ export default {
           var url = this.urlForm.url;
           var currentTime = new Date().getTime();
           axios
-            .post(mainconst.SERVICE_URL + "/url", {
+            .post("/api/url", {
               origin: url,
               currentTime: currentTime,
             })
